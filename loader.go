@@ -13,7 +13,9 @@ import (
 func prepareBenchmarkNameservers(nsStore *nsInfoMap, nameserversFile string) {
 	if appConfiguration.nameserver == "" {
 		// read global nameservers from given file
-		fmt.Println("trying to load nameservers from " + nameserversFile)
+		if appConfiguration.debug {
+			fmt.Println("trying to load nameservers from " + nameserversFile)		
+		}
 		readNameserversFromFile(nsStore, nameserversFile) // TODO: Split read and Load
 	} else {
 		loadNameserver(nsStore, appConfiguration.nameserver, "givenByParameter")
@@ -23,7 +25,9 @@ func prepareBenchmarkNameservers(nsStore *nsInfoMap, nameserversFile string) {
 func prepareBenchmarkDomains(dStore *dInfoMap, domainsFile string) {
 	var domains []string
 	// read domains from given file
-	fmt.Println("trying to load domains from " + domainsFile)
+	if appConfiguration.debug {
+		fmt.Println("trying to load domains from " + domainsFile)
+	}
 	allDomains, err := readLoadDomainsFromFile(domainsFile)
 	if err != nil {
 		fmt.Println("File not found")
