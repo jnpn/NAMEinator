@@ -17,10 +17,6 @@ import (
 
 var VERSION = "custom"
 
-const NAMESERVERS string = "nameserver-globals.csv"
-const DOMAINS string = "alexa-top-2000-domains.txt"
-const SEP string = "/"
-
 var appConfiguration AppConfig
 
 type AppConfig struct {
@@ -28,7 +24,8 @@ type AppConfig struct {
 	debug           bool
 	contest         bool
 	nameserver      string
-	datasrc         string
+	domains         string
+	nameservers     string
 }
 
 //go:embed datasrc
@@ -38,17 +35,19 @@ var datasrc embed.FS
 // process flags
 func processFlags() {
 	var appConfig AppConfig
-	flagNumberOfDomains := flag.Int("domains", 100, "number of domains to be tested")
+	flagNumberOfDomains := flag.Int("num_domains", 100, "number of domains to be tested")
 	flagNameserver := flag.String("nameserver", "", "specify a nameserver instead of using defaults")
 	flagContest := flag.Bool("contest", true, "contest=true/false : enable or disable a contest against your locally configured DNS server (default true)")
 	flagDebug := flag.Bool("debug", false, "debug=true/false : enable or disable debugging (default false)")
-	flagDataSrc := flag.String("datasrc", "/usr/local/share/nameinator/datasrc", "config=path of nameservers...")
+	flagDomains := flag.String("domains", "/usr/local/share/nameinator/datasrc/domains.txt", "filename of domains list.")
+	flagNameservers := flag.String("nameservers", "/usr/local/share/nameinator/datasrc/nameservers.csv", "filename of nameservers CSV.")
 	flag.Parse()
 	appConfig.numberOfDomains = *flagNumberOfDomains
 	appConfig.debug = *flagDebug
 	appConfig.contest = *flagContest
 	appConfig.nameserver = *flagNameserver
-	appConfig.datasrc = *flagDataSrc
+	appConfig.domains = *flagDomains
+	appConfig.nameservers = *flagNameservers
 	appConfiguration = appConfig
 }
 
@@ -139,11 +138,8 @@ func prepareBenchmark(nsStore *nsInfoMap, dStore *dInfoMap) {
 		var localDNS = getOSdns()
 		loadNameserver(nsStore, localDNS, "localhost")
 	}
-	fmt.Println("using: " + appConfiguration.datasrc + " as data dir.")
-	var domainsFile = appConfiguration.datasrc + SEP + DOMAINS
-	var nameserversFile = appConfiguration.datasrc + SEP + NAMESERVERS
-	prepareBenchmarkNameservers(nsStore, nameserversFile)
-	prepareBenchmarkDomains(dStore, domainsFile)
+	prepareBenchmarkNameservers(nsStore, appConfiguration.nameservers)
+	prepareBenchmarkDomains(dStore, appConfiguration.domains)
 }
 
 func performBenchmark(nsStore *nsInfoMap, dStore *dInfoMap) {
@@ -184,24 +180,16 @@ func main() {
 	var dStore = &dInfoMap{d: make(map[string]DInfo)}
 	// var nsStoreSorted []NInfo
 
-	// check existence of datasrc, domains and nameservers
-	_, err := os.Stat(appConfiguration.datasrc)
+	// check existence of domains and nameservers files
+	_, err := os.Stat(appConfiguration.domains)
 	if errors.Is(err, os.ErrNotExist) {
-		fmt.Printf("Directory %s is missing.\n", appConfiguration.datasrc)
+		fmt.Printf("File with domains list %s is missing.\n", appConfiguration.domains)
 		return
 	}
 
-	var domains = appConfiguration.datasrc + SEP + DOMAINS
-	_, err = os.Stat(domains)
+	_, err = os.Stat(appConfiguration.nameservers)
 	if errors.Is(err, os.ErrNotExist) {
-		fmt.Printf("File with domains list %s is missing.\n", domains)
-		return
-	}
-
-	var nameservers = appConfiguration.datasrc + SEP + NAMESERVERS
-	_, err = os.Stat(nameservers)
-	if errors.Is(err, os.ErrNotExist) {
-		fmt.Printf("File with nameservers list %s is missing.\n", nameservers)
+		fmt.Printf("File with nameservers list %s is missing.\n", appConfiguration.nameservers)
 		return
 	}
 

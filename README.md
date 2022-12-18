@@ -43,12 +43,14 @@ Usage of C:\Users\Administrator\go\src\NAMEinator\NAMEinator.exe:
         enable or disable a contest against your locally configured DNS server (default true)
   -debug=true
         enable or disable debugging (default false)
-  -domains int
+  -num_domains int
         number of domains to be tested (default 100)
   -nameserver string
         specify a nameserver instead of using defaults
-  -datasrc string
-        specify a path where domains csv and nameservers list files are stored
+  -domains string
+        path of domains text file (flat list)
+  -nameservers string
+        path of nameservers csv file
 ```
 
 sample output of current version (debug off)
