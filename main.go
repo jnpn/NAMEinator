@@ -15,7 +15,7 @@ import (
 	"sort"
 )
 
-var VERSION = "custom"
+var VERSION = "0.0.5.1a"
 
 var appConfiguration AppConfig
 
