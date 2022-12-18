@@ -21,6 +21,7 @@ type AppConfig struct {
 	debug           bool
 	contest         bool
 	nameserver      string
+	datasrc         string
 }
 
 //go:embed datasrc
@@ -34,11 +35,13 @@ func processFlags() {
 	flagNameserver := flag.String("nameserver", "", "specify a nameserver instead of using defaults")
 	flagContest := flag.Bool("contest", true, "contest=true/false : enable or disable a contest against your locally configured DNS server (default true)")
 	flagDebug := flag.Bool("debug", false, "debug=true/false : enable or disable debugging (default false)")
+	flagDataSrc := flag.String("datasrc", "/usr/local/share/nameinator/datasrc", "config=path of nameservers...")
 	flag.Parse()
 	appConfig.numberOfDomains = *flagNumberOfDomains
 	appConfig.debug = *flagDebug
 	appConfig.contest = *flagContest
 	appConfig.nameserver = *flagNameserver
+	appConfig.datasrc = *flagDataSrc
 	appConfiguration = appConfig
 }
 
