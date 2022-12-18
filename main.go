@@ -132,8 +132,9 @@ func prepareBenchmark(nsStore *nsInfoMap, dStore *dInfoMap) {
 		var localDNS = getOSdns()
 		loadNameserver(nsStore, localDNS, "localhost")
 	}
-	prepareBenchmarkNameservers(nsStore)
-	prepareBenchmarkDomains(dStore)
+	fmt.Println("using: " + appConfiguration.datasrc + " as data dir.")
+	prepareBenchmarkNameservers(nsStore, appConfiguration.datasrc)
+	prepareBenchmarkDomains(dStore, appConfiguration.datasrc)
 }
 
 func performBenchmark(nsStore *nsInfoMap, dStore *dInfoMap) {

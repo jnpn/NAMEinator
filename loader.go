@@ -10,21 +10,25 @@ import (
 	"time"
 )
 
-func prepareBenchmarkNameservers(nsStore *nsInfoMap) {
+const NAMESERVERS string = "nameserver-globals.csv"
+const DOMAINS string = "alexa-top-2000-domains.txt"
+const SEP = "/"
+
+func prepareBenchmarkNameservers(nsStore *nsInfoMap, datasrc string) {
 	if appConfiguration.nameserver == "" {
 		// read global nameservers from given file
-		fmt.Println("trying to load nameservers from nameserver-globals")
-		readNameserversFromFile(nsStore, "datasrc/nameserver-globals.csv") // TODO: Split read and Load
+		fmt.Println("trying to load nameservers from " + NAMESERVERS)
+		readNameserversFromFile(nsStore, datasrc+SEP+NAMESERVERS) // TODO: Split read and Load
 	} else {
 		loadNameserver(nsStore, appConfiguration.nameserver, "givenByParameter")
 	}
 }
 
-func prepareBenchmarkDomains(dStore *dInfoMap) {
+func prepareBenchmarkDomains(dStore *dInfoMap, datasrc string) {
 	var domains []string
 	// read domains from given file
-	fmt.Println("trying to load domains from alexa-top-2000-domains")
-	allDomains, err := readLoadDomainsFromFile("datasrc/alexa-top-2000-domains.txt")
+	fmt.Println("trying to load domains from " + DOMAINS)
+	allDomains, err := readLoadDomainsFromFile(datasrc + SEP + DOMAINS)
 	if err != nil {
 		fmt.Println("File not found")
 		return
