@@ -47,6 +47,8 @@ Usage of C:\Users\Administrator\go\src\NAMEinator\NAMEinator.exe:
         number of domains to be tested (default 100)
   -nameserver string
         specify a nameserver instead of using defaults
+  -datasrc string
+        specify a path where domains csv and nameservers list files are stored
 ```
 
 sample output of current version (debug off)
