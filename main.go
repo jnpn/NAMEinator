@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"errors"
 	"embed"
 	"flag"
 	"fmt"
@@ -14,6 +16,11 @@ import (
 )
 
 var VERSION = "custom"
+
+const NAMESERVERS string = "nameserver-globals.csv"
+const DOMAINS string = "alexa-top-2000-domains.txt"
+const SEP string = "/"
+
 var appConfiguration AppConfig
 
 type AppConfig struct {
@@ -133,8 +140,10 @@ func prepareBenchmark(nsStore *nsInfoMap, dStore *dInfoMap) {
 		loadNameserver(nsStore, localDNS, "localhost")
 	}
 	fmt.Println("using: " + appConfiguration.datasrc + " as data dir.")
-	prepareBenchmarkNameservers(nsStore, appConfiguration.datasrc)
-	prepareBenchmarkDomains(dStore, appConfiguration.datasrc)
+	var domainsFile = appConfiguration.datasrc + SEP + DOMAINS
+	var nameserversFile = appConfiguration.datasrc + SEP + NAMESERVERS
+	prepareBenchmarkNameservers(nsStore, nameserversFile)
+	prepareBenchmarkDomains(dStore, domainsFile)
 }
 
 func performBenchmark(nsStore *nsInfoMap, dStore *dInfoMap) {
@@ -174,6 +183,27 @@ func main() {
 	var nsStore = &nsInfoMap{ns: make(map[string]NInfo)}
 	var dStore = &dInfoMap{d: make(map[string]DInfo)}
 	// var nsStoreSorted []NInfo
+
+	// check existence of datasrc, domains and nameservers
+	_, err := os.Stat(appConfiguration.datasrc)
+	if errors.Is(err, os.ErrNotExist) {
+		fmt.Printf("Directory %s is missing.\n", appConfiguration.datasrc)
+		return
+	}
+
+	var domains = appConfiguration.datasrc + SEP + DOMAINS
+	_, err = os.Stat(domains)
+	if errors.Is(err, os.ErrNotExist) {
+		fmt.Printf("File with domains list %s is missing.\n", domains)
+		return
+	}
+
+	var nameservers = appConfiguration.datasrc + SEP + NAMESERVERS
+	_, err = os.Stat(nameservers)
+	if errors.Is(err, os.ErrNotExist) {
+		fmt.Printf("File with nameservers list %s is missing.\n", nameservers)
+		return
+	}
 
 	// based on startup configuration we have to do some preparation
 	prepareBenchmark(nsStore, dStore)
